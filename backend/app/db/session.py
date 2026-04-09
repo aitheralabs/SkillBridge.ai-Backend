@@ -3,11 +3,18 @@ from sqlalchemy.orm import sessionmaker, Session
 from app.config.config import settings
 from app.db.base import Base
 
-# Import all models so Base knows about them for table creation
-import app.db.models.role  # noqa: F401
-import app.db.models.user  # noqa: F401
+# Import all models so Base registers them for create_all
+import app.db.models.role   # noqa: F401
+import app.db.models.user   # noqa: F401
+import app.db.models.enums  # noqa: F401
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,       # reconnect on stale connections
+    pool_size=5,
+    max_overflow=10,
+)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 _db_instance: Session | None = None

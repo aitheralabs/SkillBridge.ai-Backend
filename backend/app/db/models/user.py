@@ -3,6 +3,7 @@ from sqlalchemy import Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
+from app.db.models.enums import UserRole, pg_user_role
 
 
 class User(Base):
@@ -10,6 +11,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     role_id: Mapped[int] = mapped_column(Integer, ForeignKey("roles.id"), nullable=False)
+    user_role: Mapped[UserRole] = mapped_column(pg_user_role, default=UserRole.JOB_SEEKER, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     phone: Mapped[str | None] = mapped_column(String(20), unique=True, nullable=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
