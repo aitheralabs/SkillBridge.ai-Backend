@@ -1,40 +1,60 @@
-from pydantic import BaseModel, EmailStr
+import uuid
+from pydantic import EmailStr, Field
+from app.schemas.common import BaseSchema
+from app.core.enums import UserRole, UserStatus
 
 
-class SignupRequest(BaseModel):
+class RegisterRequest(BaseSchema):
     email: EmailStr
-    phone: str | None = None
+    password: str = Field(min_length=8)
+    role: UserRole = UserRole.JOB_SEEKER
+
+
+class LoginRequest(BaseSchema):
+    email: EmailStr
     password: str
-    role_id: int = 2  # default to regular user
 
 
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+class UserBrief(BaseSchema):
+    id: uuid.UUID
+    email: str
+    role: UserRole
+    status: UserStatus
 
 
-class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
-
-
-class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str
-
-
-class RefreshTokenRequest(BaseModel):
-    refresh_token: str
-
-
-class ResendEmailRequest(BaseModel):
-    email: EmailStr
-
-
-class TokenResponse(BaseModel):
+class TokenResponse(BaseSchema):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    expires_in: int
+    user: UserBrief
 
 
-class MessageResponse(BaseModel):
-    message: str
+class RefreshRequest(BaseSchema):
+    refresh_token: str
+
+
+class RefreshResponse(BaseSchema):
+    access_token: str
+    refresh_token: str
+    expires_in: int
+
+
+class LogoutRequest(BaseSchema):
+    refresh_token: str
+
+
+class VerifyEmailRequest(BaseSchema):
+    token: str
+
+
+class ForgotPasswordRequest(BaseSchema):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseSchema):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class ResendVerificationRequest(BaseSchema):
+    email: EmailStr

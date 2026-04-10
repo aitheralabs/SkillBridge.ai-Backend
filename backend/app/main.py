@@ -1,13 +1,30 @@
 from fastapi import FastAPI
-from app.db.session import init_db
-from app.controller.v1.auth import router as auth_router
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="SkillBridge API")
+from app.api.v1.router import api_router
+from app.core.config import settings
+from app.core.exceptions import register_exception_handlers
+
+app = FastAPI(
+    title="SkillBridge API",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+register_exception_handlers(app)
+
+app.include_router(api_router)
 
 
-@app.on_event("startup")
-def on_startup():
-    init_db()
-
-
-app.include_router(auth_router, prefix="/api/v1")
+@app.get("/health", tags=["health"])
+def health():
+    return {"status": "ok"}
